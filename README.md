@@ -1,4 +1,4 @@
-# Understanding Deep Architectures by Interpretable Visual Summaries
+# Understanding Deep Architectures by Interpretable Visual Summaries [2/2]
 
 Code for the paper "Understanding Deep Architectures by Interpretable Visual Summaries" (LINK ARXIV).
 This is the second portion of the method, the first one is at (LINK) and it is recommended to start from there to generate input data.
