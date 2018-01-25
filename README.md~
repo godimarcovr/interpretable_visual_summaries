@@ -1,0 +1,5 @@
+# Understanding Deep Architectures by Interpretable Visual Summaries
+
+## Installing
+* Follow the installation instructions for [Proposal Flow](https://github.com/bsham/ProposalFlow) with [SelectiveSearch](http://koen.me/research/selectivesearch/) option as proposal method
+* set the path to ProposalFlow installation 
