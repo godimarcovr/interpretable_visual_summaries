@@ -128,21 +128,6 @@ for class_ind=1:numel(class_folders)
                 end
             end
 
-
-        %     %visualize good inds
-        %     figure
-        %     tmp_img1 = imread(fullfile(img_paths(img_ind).folder, img_paths(img_ind).name));
-        %     imshow(tmp_img1)
-        %     hold on
-        %     count = 0;
-        %     for good_ind=tmp_good_inds
-        %         count = count + 1;
-        %         color_val = count / numel(tmp_good_inds);
-        %         rectangle('Position', [tmp_props(good_ind, 1:2) tmp_props(good_ind, 3:4)-tmp_props(good_ind, 1:2)], 'EdgeColor', [color_val, 0.0, 1.0 - color_val], 'LineWidth', 2);
-        %     end
-        %     hold off
-
-
             % remove redundant proposals (redundant if overlaps with another
             % region proposal)
             % keep the one with the best average score in sim matrix
@@ -156,7 +141,6 @@ for class_ind=1:numel(class_folders)
 
                 [tmp_sval, ~] = sort(similarity_mat_part(good_ind1, :),'descend');
                 best_scores = [mean(tmp_sval(1:100))];
-        %         best_scores = [max(similarity_mat_part(good_ind1, :))];
                 for good_ind2=tmp_good_inds
                     if good_ind1 == good_ind2
                         continue
@@ -171,32 +155,13 @@ for class_ind=1:numel(class_folders)
                         sc1 = prod(tmp_bbox1(3:4));
                         sc2 = prod(tmp_bbox2(3:4));
                         sdist = max([sc1 sc2]) / min([sc1 sc2]);
-                        sdist_w = max([tmp_bbox1(3) tmp_bbox2(3)]) / min([tmp_bbox1(3) tmp_bbox2(3)]);
-                        sdist_h = max([tmp_bbox1(4) tmp_bbox2(4)]) / min([tmp_bbox1(4) tmp_bbox2(4)]);
-
-        %                 %visualize good inds
-        %                 figure
-        %                 subplot(1,2,1)
-        %                 tmp_img1 = imread(fullfile(img_paths(img_ind).folder, img_paths(img_ind).name));
-        %                 imshow(tmp_img1)
-        %                 hold on
-        %                 count = 0;
-        %                 for good_ind=[good_ind1 good_ind2]
-        %                     count = count + 1;
-        %                     color_val = count / numel(tmp_good_inds);
-        %                     rectangle('Position', [tmp_props(good_ind, 1:2) tmp_props(good_ind, 3:4)-tmp_props(good_ind, 1:2)], 'EdgeColor', [color_val, 0.0, 1.0 - color_val], 'LineWidth', 2);
-        %                 end
-        %                 hold off
-        %                 title([num2str(sdist)]);
 
         %                 %if one is a lot bigger keep them both
                         if sdist < scale_factor_thresh
-        %                 if sdist_w < scale_factor_thresh || sdist_h < scale_factor_thresh 
                             redundant_inds = [redundant_inds good_ind2];
 
                             [tmp_sval, ~] = sort(similarity_mat_part(good_ind2, :),'descend');
                             best_scores = [best_scores mean(tmp_sval(1:100))];
-            %                 best_scores = [best_scores max(similarity_mat_part(good_ind2, :))];
                         else
                             to_keep = [to_keep good_ind2];
                         end
@@ -205,19 +170,6 @@ for class_ind=1:numel(class_folders)
                 [~, best_ind] = max(best_scores);
                 tmp_good_inds = [redundant_inds(best_ind) to_keep];
             end
-
-        %     %visualize good inds
-        %     figure
-        %     tmp_img1 = imread(fullfile(img_paths(img_ind).folder, img_paths(img_ind).name));
-        %     imshow(im2double(tmp_img1) * 0.75 + 0.25 * im2double(mask))
-        %     hold on
-        %     count = 0;
-        %     for good_ind=tmp_good_inds
-        %         count = count + 1;
-        %         color_val = count / numel(tmp_good_inds);
-        %         rectangle('Position', [tmp_props(good_ind, 1:2) tmp_props(good_ind, 3:4)-tmp_props(good_ind, 1:2)], 'EdgeColor', [color_val, 0.0, 1.0 - color_val], 'LineWidth', 2);
-        %     end
-
 
             good_rps{img_ind} = tmp_good_inds;
             total_rps = total_rps + numel(tmp_good_inds);
@@ -346,7 +298,6 @@ for class_ind=1:numel(class_folders)
 
         count_sp_ind = 0;
         for sp_ind=1:min(topk, numel(sorted_cl_inds))
-    %     for sp_ind=sorted_sp_inds(1:min(topk, numel(cl_inds)))'
             cl_ind = sorted_cl_inds(sp_ind);
             cl_img_ind2 = reg_img_inds(cl_ind);
             tmp_img2 = imread(fullfile(img_paths(cl_img_ind2).folder, img_paths(cl_img_ind2).name));
@@ -363,7 +314,6 @@ for class_ind=1:numel(class_folders)
 
             tmp_img2 = tmp_img2_warped(tmp_props(cl_rp_ind, 2):tmp_props(cl_rp_ind, 4), tmp_props(cl_rp_ind, 1):tmp_props(cl_rp_ind, 3), :);
             tmp_mask2 = tmp_mask2_warped(tmp_props(cl_rp_ind, 2):tmp_props(cl_rp_ind, 4), tmp_props(cl_rp_ind, 1):tmp_props(cl_rp_ind, 3), :);
-    %         tmp_img2 = tmp_img2(tmp_props2(cl_rp_ind2, 2):tmp_props2(cl_rp_ind2, 4), tmp_props2(cl_rp_ind2, 1):tmp_props2(cl_rp_ind2, 3), :);
 
             count_sp_ind = count_sp_ind + 1;
             all_imgs_rgb(count_sp_ind, :, :, :) = imresize(tmp_img2, [size(tmp_img, 1), size(tmp_img, 2)]);
@@ -374,33 +324,17 @@ for class_ind=1:numel(class_folders)
         
         all_imgs_rgb_by_cl{count_cl} = all_imgs_rgb;
 
-        scores = log(scores + 1);
-        scores = scores ./ sum(scores);
         %uniform scoring
         scores = ones(numel(scores), 1) ./ numel(scores);
-
-    %     scores = ones(min(topk, numel(cl_inds)), 1) .* (1 / min(topk, numel(cl_inds)));
     
         %visualize warped clusters
         n_subplots = ceil(sqrt(min(topk, numel(sorted_cl_inds))));
-%         for ii=1:size(all_imgs_rgb, 1)
-%             subplot(n_subplots, n_subplots, ii);
-%             imshow(uint8(squeeze(all_imgs_rgb(ii, :, :, :))))
-%         end
-%         print([out_folder '/clusterwarp_' num2str(count_cl)],'-dpng', '-r0');
-%         subplot(1,1,1);
 
         all_imgs_rgb_orig = all_imgs_rgb;
         all_imgs_mask_orig = all_imgs_mask;
         
         all_imgs_rgb = all_imgs_rgb .* scores;
         all_imgs_gray = all_imgs_gray .* scores;
-
-
-    %     print('-fillpage',['output_figs/cluster_' num2str(count_cl)],'-dpdf');   
-    %         count_cl = count_cl + 1;
-    % %     imshow(uint8(squeeze(sum(all_imgs_gray, 1))));
-    % %     print(['output_figs/blendgraywarp_' num2str(count_cl)],'-dpng', '-r0');
 
         all_imgs_mask = squeeze(mean(all_imgs_mask, 1)) > 0.75;
         all_imgs_mask_ch = bwconvhull(all_imgs_mask); %convexhull image
@@ -410,75 +344,10 @@ for class_ind=1:numel(class_folders)
         end
         conv_coords = all_imgs_mask_properties(1).ConvexHull; %convexhull coords
         all_imgs_rgb_blend = uint8(squeeze(sum(all_imgs_rgb, 1)));
-
-        % old visualizations
-%         tmp_img = imread(fullfile(img_paths(cl_img_ind).folder, img_paths(cl_img_ind).name));
-% 
-%         orig_img_box = tmp_img(tmp_props(cl_rp_ind, 2):tmp_props(cl_rp_ind, 4), tmp_props(cl_rp_ind, 1):tmp_props(cl_rp_ind, 3), :) ; %for size
-%         orig_img_box(:) = 0.5;
-%         orig_img_box =  im2double(orig_img_box) .* (1.0 - double(all_imgs_mask_ch)) + im2double(all_imgs_rgb_blend) .* double(all_imgs_mask_ch);
-%         orig_img_box = uint8(orig_img_box .* 255.0);
-% 
-%         imshow(orig_img_box); %if box, only first orig_img_box
-%         print([out_folder '/blendrgbwarp_' num2str(count_cl)],'-dpng', '-r0');
-% 
-%         orig_img_box = tmp_img(tmp_props(cl_rp_ind, 2):tmp_props(cl_rp_ind, 4), tmp_props(cl_rp_ind, 1):tmp_props(cl_rp_ind, 3), :) ;
-%         orig_img_box =  im2double(orig_img_box) .* (1.0 - double(all_imgs_mask_ch)) + im2double(all_imgs_rgb_blend) .* double(all_imgs_mask_ch);
-%         orig_img_box = uint8(orig_img_box .* 255.0);
-% 
-%         tmp_img(tmp_props(cl_rp_ind, 2):tmp_props(cl_rp_ind, 4), tmp_props(cl_rp_ind, 1):tmp_props(cl_rp_ind, 3), :) = orig_img_box;
-%         imshow(tmp_img);
-%         hold on
-%         line(conv_coords(:, 1) - 1 + tmp_props(cl_rp_ind, 1), conv_coords(:, 2) - 1 + tmp_props(cl_rp_ind, 2), 'Color', 'r', 'LineWidth',3);
-%         print([out_folder '/contextblendrgbwarp_' num2str(count_cl)],'-dpng', '-r0');
-%         hold off
-%         
-%         
-%         tmp_img = imread(fullfile(img_paths(cl_img_ind).folder, img_paths(cl_img_ind).name));
-%         imshow(tmp_img);
-%         hold on
-%         line(conv_coords(:, 1) - 1 + tmp_props(cl_rp_ind, 1), conv_coords(:, 2) - 1 + tmp_props(cl_rp_ind, 2), 'Color', 'r', 'LineWidth',3);
-%         print([out_folder '/contextrgbrgbwarp_' num2str(count_cl)],'-dpng', '-r0');
-%         hold off
-%         
-%         
-%         %******************************
-%         f.PaperPosition = [0 0 20 10];
-%         subplot(1,2,1)
-%         tmp_img = imread(fullfile(img_paths(cl_img_ind).folder, img_paths(cl_img_ind).name));
-%         imshow(tmp_img);
-%         hold on
-%         line(conv_coords(:, 1) - 1 + tmp_props(cl_rp_ind, 1), conv_coords(:, 2) - 1 + tmp_props(cl_rp_ind, 2), 'Color', 'r', 'LineWidth',3);
-%         hold off
-%         n_subplots = [2 4];
-%         for ii=1:prod(n_subplots)
-%             if ii > size(all_imgs_rgb_orig, 1)
-%                 break
-%             end
-%             subplot_ind = ii + (fix((ii - 1)/n_subplots(2)) + 1) * n_subplots(2);
-%             subplot(n_subplots(1), n_subplots(2) * 2, subplot_ind);
-%             imshow(uint8(squeeze(all_imgs_rgb_orig(ii, :, :, :))))
-%             hold on
-%             tmp_mask2 = squeeze(all_imgs_mask_orig(ii, :, :, :));
-%             tmp_mask2_ch = bwconvhull(tmp_mask2);
-%             tmp_mask2_properties = regionprops(tmp_mask2_ch, 'ConvexHull');
-%             if size(tmp_mask2_properties, 1) == 0
-%                 continue
-%             end
-%             conv_coords2 = tmp_mask2_properties(1).ConvexHull;
-%             line(conv_coords2(:, 1), conv_coords2(:, 2), 'Color', 'r', 'LineWidth',3);
-%             hold off
-%         end
-%         print([out_folder '/usertest_context+cluster_' num2str(count_cl)],'-dpng', '-r0');
-%         subplot(1,1,1);
-        
         
         %******************************
         f.PaperPosition = [0 0 10 10];
         n_subplots = ceil(sqrt(size(all_imgs_rgb, 1)));
-        
-%         n_subplots = 3;
-        
         
         contexts_and_convexhulls_by_cl{count_cl}.contexts = cell(size(all_imgs_rgb, 1), 1);
         contexts_and_convexhulls_by_cl{count_cl}.chrs = cell(size(all_imgs_rgb, 1), 1);
@@ -487,7 +356,6 @@ for class_ind=1:numel(class_folders)
         contexts_and_convexhulls_by_cl{count_cl}.bboxes = cell(size(all_imgs_rgb, 1), 1);
         
         for ii=1:size(all_imgs_rgb, 1)
-%         for ii=1:9
             subplot(n_subplots, n_subplots, ii);
 
             cl_ind = sorted_cl_inds(ii);
@@ -500,11 +368,6 @@ for class_ind=1:numel(class_folders)
             tmp_mask2_ch = bwconvhull(tmp_mask2_rp);
             tmp_mask2_properties = regionprops(tmp_mask2_ch, 'ConvexHull');
             conv_coords2 = tmp_mask2_properties(1).ConvexHull;
-
-%             imshow(tmp_img2)
-%             hold on
-%             line(conv_coords2(:, 1) - 1 + tmp_props2(cl_rp_ind2, 1), conv_coords2(:, 2) - 1 + tmp_props2(cl_rp_ind2, 2), 'Color', 'r', 'LineWidth',3);
-%             hold off
             
             contexts_and_convexhulls_by_cl{count_cl}.contexts{ii} = tmp_img2;
             contexts_and_convexhulls_by_cl{count_cl}.chrs{ii} = conv_coords2(:, 1) - 1 + tmp_props2(cl_rp_ind2, 1);
@@ -514,8 +377,6 @@ for class_ind=1:numel(class_folders)
             contexts_and_convexhulls_by_cl{count_cl}.conveximgs{ii} = tmp_chimg;
             contexts_and_convexhulls_by_cl{count_cl}.bboxes{ii} = tmp_props2(cl_rp_ind2, :);
         end
-%         print([out_folder '/usertest_contexts_' num2str(count_cl)],'-dpng', '-r0');
-%         subplot(1,1,1);
         
         %******************************
         f.PaperPosition = [0 0 10 10];
@@ -538,38 +399,10 @@ for class_ind=1:numel(class_folders)
             tmp_mask2_properties = regionprops(tmp_mask2_ch, 'ConvexHull');
             conv_coords2 = tmp_mask2_properties(1).ConvexHull;
 
-%             imshow(tmp_img2)
-%             hold on
-%             line(conv_coords2(:, 1) - 1 + tmp_props2(cl_rp_ind2, 1), conv_coords2(:, 2) - 1 + tmp_props2(cl_rp_ind2, 2), 'Color', 'r', 'LineWidth',3);
-%             hold off
             tmp_mask2_properties = regionprops(tmp_mask2, 'Image', 'BoundingBox');
             
             contexts_and_convexhulls_by_cl{count_cl}.maskprops{ii} = tmp_mask2_properties;
-            
-            for cci=1:size(tmp_mask2_properties, 1)
-                tmp_empty_mask = zeros(size(tmp_mask2, 1), size(tmp_mask2, 2));
-                tmp_bbox_xyxy = [round(tmp_mask2_properties(cci).BoundingBox(1:2)) round(tmp_mask2_properties(cci).BoundingBox(1:2) + tmp_mask2_properties(cci).BoundingBox(3:4)) - [1,1] ];
-                tmp_empty_mask(tmp_bbox_xyxy(2):tmp_bbox_xyxy(4), tmp_bbox_xyxy(1):tmp_bbox_xyxy(3)) = tmp_mask2_properties(cci).Image;
-                
-                tmp_rp_pixels = zeros(size(tmp_mask2, 1), size(tmp_mask2, 2));
-                tmp_rp_pixels(tmp_props2(cl_rp_ind2, 2):tmp_props2(cl_rp_ind2, 4), tmp_props2(cl_rp_ind2, 1):tmp_props2(cl_rp_ind2, 3)) = 1;
-                tmp_rp_inters_pixels = tmp_rp_pixels & tmp_empty_mask;
-                
-                if sum(tmp_rp_inters_pixels(:)) > 0
-                    tmp_boundary = bwboundaries(tmp_empty_mask);
-                    for bbi=1:numel(tmp_boundary)
-                        tb = tmp_boundary{bbi};
-%                         hold on
-%                         plot(tb(:, 2), tb(:, 1), 'Color', 'c', 'LineWidth',2)
-%                         hold off
-                    end
-                end
-            end
-            
-            
         end
-        print([out_folder '/usertest_contexts+maskregions_' num2str(count_cl)],'-dpng', '-r0');
-%         subplot(1,1,1);
 
         blendrgbwarps{count_cl} = uint8(squeeze(sum(all_imgs_rgb, 1)));
     end
@@ -613,10 +446,6 @@ for class_ind=1:numel(class_folders)
 %% evaluate clusters
     cluster_eval = cell(tot_cl, 1);
     for count_cl=1:tot_cl
-%         f = figure;
-%         f.Visible = 'off';
-%         f.PaperUnits = 'inches';
-%         f.PaperPosition = [0 0 10 10];
         
         all_imgs_rgb = all_imgs_rgb_by_cl{count_cl};
         corrs = corrs_by_cl{count_cl}.corrs;
@@ -631,14 +460,6 @@ for class_ind=1:numel(class_folders)
         cluster_eval{count_cl}.samples_oks = false(size(all_imgs_rgb, 1), 1);
         for ii1=1:size(all_imgs_rgb, 1)
             ii = sorted_ii_inds(ii1);
-%             subplot(4,4,ii1);
-%             tmp_img1 = uint8(squeeze(all_imgs_rgb(ii, :, :, :)));
-%             imshow(tmp_img1)
-%             ccc = 'g';
-%             if sum((corrs(ii, :) < mediana2), 2) / size(all_imgs_rgb, 1) >= 0.6
-%                 ccc = 'r';
-%             end
-%             title(sum((corrs(ii, :) < mediana2), 2) / size(all_imgs_rgb, 1), 'Color', ccc)
             
             cluster_eval{count_cl}.samples_scores(ii) = sum((corrs(ii, :) < mediana2), 2) / size(all_imgs_rgb, 1);
             cluster_eval{count_cl}.samples_oks(ii) = sum((corrs(ii, :) < mediana2), 2) / size(all_imgs_rgb, 1) < 0.6;
@@ -654,10 +475,6 @@ for class_ind=1:numel(class_folders)
         elseif mediana > 1.4 * mediana2
             ccc = 'g';
         end
-%         subplot(4,4,16)
-%         title(mediana / mediana2, 'Color', ccc)
-        
-%         print([out_folder '/cleaned_clusterwarp_' num2str(count_cl)],'-dpng', '-r0');
         close all
     end
 
@@ -669,27 +486,11 @@ for class_ind=1:numel(class_folders)
         if size(contexts_and_convexhulls_by_cl{count_cl}, 1) == 0
             continue
         end
-%         f = figure;
-%         f.Visible = 'off';
-%         f.PaperUnits = 'inches';
-%         f.PaperPosition = [0 0 10 10];
         
         all_imgs_rgb = all_imgs_rgb_by_cl{count_cl};
         good_cl_inds = find(cluster_eval{count_cl}.samples_oks );
         
         n_subplots = ceil(sqrt(numel(good_cl_inds)));
-        
-        for ii=1:numel(good_cl_inds)
-%             subplot(n_subplots, n_subplots, ii);
-            gci = good_cl_inds(ii);
-% 
-%             imshow(contexts_and_convexhulls_by_cl{count_cl}.contexts{gci})
-%             hold on
-%             line(contexts_and_convexhulls_by_cl{count_cl}.chrs{gci}, contexts_and_convexhulls_by_cl{count_cl}.chcs{gci}, 'Color', 'r', 'LineWidth',3);
-%             hold off
-
-        end
-%         print([out_folder '/cleaned_usertest_contexts_' num2str(count_cl)],'-dpng', '-r0');
         close all
         
         f = figure;
@@ -754,7 +555,7 @@ for class_ind=1:numel(class_folders)
     
     
     'finita creazione figure; salvataggio mat....'
-%     save([out_base_folder class_folders(class_ind).name '.mat'], '-v7.3');
+    save([out_base_folder class_folders(class_ind).name '.mat'], '-v7.3');
     toc(tstart)
 end
 
