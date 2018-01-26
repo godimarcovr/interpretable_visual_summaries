@@ -1,7 +1,7 @@
 # Understanding Deep Architectures by Interpretable Visual Summaries [2/2]
 
-Code for the paper "Understanding Deep Architectures by Interpretable Visual Summaries" (LINK ARXIV).
-This is the second portion of the method, the first one is at (LINK) and it is recommended to start from there to generate input data.
+Code for the paper "Understanding Deep Architectures by Interpretable Visual Summaries" [arXiv]().
+This is the second portion of the method, it is **recommended** to start from the [first part](https://github.com/mcarletti/sharp-heatmaps-pt) to generate the input data.
 
 ## Installing
 * Follow the installation instructions for [Proposal Flow](https://github.com/bsham/ProposalFlow) with [SelectiveSearch](http://koen.me/research/selectivesearch/) option as proposal method
