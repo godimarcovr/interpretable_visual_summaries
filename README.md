@@ -35,4 +35,4 @@ To generate a set of visual summaries (second part) for a specified class you ne
 Follow the instructions [here](https://github.com/mcarletti/interpretable-visual-summaries).
 
 ## Usage [2/2]: generate visual summaries
-Run 'compute_clusters.m' to generate visual summaries. The resulting images are going to be separated into folders by class in out_base_folder, together with corresponding mat files that can be used to speed up future computations (to recompute summaries after changing parameters, remove the .mat files)
+Run 'compute_clusters.m' to generate visual summaries. The resulting images are going to be separated into folders by class in 'out_base_folder', together with corresponding mat files that can be used to speed up future computations (to recompute summaries after changing parameters, remove the .mat files)
