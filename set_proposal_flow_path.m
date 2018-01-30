@@ -19,3 +19,5 @@ addpath(fullfile(proposal_flow_folder_path,'/denseCorrespondence'));
 addpath(fullfile(proposal_flow_folder_path,'/sdFilter'));
 % Dense Warp path
 addpath(fullfile(proposal_flow_folder_path,'_demo-DenseFlow/'));
+
+addpath(fullfile(pwd,'functions/'));
