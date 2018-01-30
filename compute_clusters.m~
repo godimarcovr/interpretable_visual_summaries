@@ -370,11 +370,69 @@ for class_ind=1:numel(class_folders)
     
 %% compute global measures of quality for this class
     cluster_acceptance_threshold = 0.9;
-    [corrs_by_cl,mediana2] = compute_cluster_quality_fn(all_imgs_rgb_by_cl,tot_cl);
+    mediane = [];
+    medie = [];
+    corrs_by_cl = cell(tot_cl, 1);
+    
+    for count_cl=1:tot_cl
+        all_imgs_rgb = all_imgs_rgb_by_cl{count_cl};
+        corrs = zeros(size(all_imgs_rgb, 1));
+        for ii1=1:size(all_imgs_rgb, 1)
+            tmp_img1 = uint8(squeeze(all_imgs_rgb(ii1, :, :, :)));
+            tmp_img1 = rgb2gray(tmp_img1);
+            for ii2=1:size(all_imgs_rgb, 1)
+                tmp_img2 = uint8(squeeze(all_imgs_rgb(ii2, :, :, :)));
+                tmp_img2 = rgb2gray(tmp_img2);
+                %SSIM between each pair of images in each cluster
+                corrs(ii1, ii2) = ssim(tmp_img1, tmp_img2);
+            end
+        end
+        corrs2 = corrs;
+        corrs2(1:size(all_imgs_rgb, 1)+1:end) = nan;
+        mediana = nanmedian(corrs2(:));
+        media = nanmean(corrs2(:));
+        sqm = nanstd(corrs2(:));
+        mediane = [mediane mediana];
+        medie = [medie media];
+        
+        corrs_by_cl{count_cl}.corrs = corrs;
+        corrs_by_cl{count_cl}.corrs2 = corrs2;
+    end
+    %median measure of quality
+    mediana2 = median(mediane);
     
 
 %% evaluate clusters
-    cluster_eval = evaluate_clusters_fn(all_imgs_rgb_by_cl,tot_cl, corrs_by_cl, mediana2);
+    %based on the median computed
+    cluster_eval = cell(tot_cl, 1);
+    for count_cl=1:tot_cl
+        
+        all_imgs_rgb = all_imgs_rgb_by_cl{count_cl};
+        corrs = corrs_by_cl{count_cl}.corrs;
+        corrs2 = corrs_by_cl{count_cl}.corrs2;
+        mediana = nanmedian(corrs2(:));
+        media = nanmean(corrs2(:));
+        sqm = nanstd(corrs2(:));
+        
+        [~, sorted_ii_inds] = sort(sum(corrs < mediana2, 2));
+        
+        cluster_eval{count_cl}.samples_scores = zeros(size(all_imgs_rgb, 1), 1);
+        cluster_eval{count_cl}.samples_oks = false(size(all_imgs_rgb, 1), 1);
+        for ii1=1:size(all_imgs_rgb, 1)
+            ii = sorted_ii_inds(ii1);
+            
+            cluster_eval{count_cl}.samples_scores(ii) = sum((corrs(ii, :) < mediana2), 2) / size(all_imgs_rgb, 1);
+            cluster_eval{count_cl}.samples_oks(ii) = sum((corrs(ii, :) < mediana2), 2) / size(all_imgs_rgb, 1) < 0.6;
+        end
+        
+        
+        cluster_eval{count_cl}.score = mediana / mediana2;
+        cluster_eval{count_cl}.ok = true;
+        if mediana < cluster_acceptance_threshold * mediana2
+            cluster_eval{count_cl}.ok = false;
+        end
+        close all
+    end
 
 %% clean clusters based on evaluation
     %(produces visual summaries)
