@@ -1,4 +1,4 @@
-function [cluster_eval] = evaluate_clusters_fn(all_imgs_rgb_by_cl,tot_cl, corrs_by_cl, mediana2)
+function [cluster_eval] = evaluate_clusters_fn(all_imgs_rgb_by_cl,tot_cl, corrs_by_cl, mediana2,cluster_acceptance_threshold)
 %EVALUATE_CLUSTERS_FN Based on similarity measures, decide whether to
 %discard a cluster or not
 

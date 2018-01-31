@@ -1,4 +1,4 @@
-function [tmp_good_inds] = prune_rps_mask_fn(sharp_mask_path, tmp_props, valid_rp_thresh)
+function [tmp_good_inds] = prune_rps_mask_fn(sharp_mask_path, tmp_props, valid_rp_thresh,num_op)
 %PRUNE_RPS_MASK_FN given a mask image (one channel, same size as image) and
 %a list of rectangular region proposals, return the indexes of the ones
 %with the correct overlap
