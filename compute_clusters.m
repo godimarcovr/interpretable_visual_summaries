@@ -73,6 +73,12 @@ for class_ind=1:numel(class_folders)
         img_paths = img_paths(good_inds);
         sharp_mask_paths = sharp_mask_paths(good_inds);
         proposals = proposals(good_inds);
+        
+        %% compute hog features
+        hog_feats=cell(numel(img_paths));
+        parfor img_ind=1:numel(img_paths)
+            hog_feats{img_ind}=compute_hog_descriptor_fn(fullfile(img_paths(img_ind).folder, img_paths(img_ind).name),num_op,[proposals{img_ind}]);
+        end
 
         %% compute flow
 
@@ -87,7 +93,7 @@ for class_ind=1:numel(class_folders)
                 %compute proposal flow correspondence matrix between each
                 %pair of images
                 tmp_proposals = [proposals{img_ind1} ; proposals{img_ind2}];
-                [match, weight, confidence, warp] = compute_flow_fn(fullfile(img_paths(img_ind1).folder, img_paths(img_ind1).name), fullfile(img_paths(img_ind2).folder, img_paths(img_ind2).name), num_op, tmp_proposals, doWarp);
+                [match, weight, confidence, warp] = compute_flow_fn(fullfile(img_paths(img_ind1).folder, img_paths(img_ind1).name), fullfile(img_paths(img_ind2).folder, img_paths(img_ind2).name), hog_feats{img_ind1}, hog_feats{img_ind2}, num_op, tmp_proposals, doWarp);
                 regrow{img_ind2} = confidence;
             end
             registrations(img_ind1, :) = regrow;
@@ -264,7 +270,7 @@ for class_ind=1:numel(class_folders)
             %warp second image to exemplar (this is used to evaluate later
             %how good is a cluster)
             tmp_proposals = [tmp_props ; tmp_props2];
-            [~, ~, ~, warp] = compute_flow_fn(fullfile(img_paths(cl_img_ind).folder, img_paths(cl_img_ind).name), fullfile(img_paths(cl_img_ind2).folder, img_paths(cl_img_ind2).name), num_op, tmp_proposals, true);
+            [~, ~, ~, warp] = compute_flow_fn(fullfile(img_paths(cl_img_ind).folder, img_paths(cl_img_ind).name), fullfile(img_paths(cl_img_ind2).folder, img_paths(cl_img_ind2).name), hog_feats{cl_img_ind}, hog_feats{cl_img_ind2}, num_op, tmp_proposals, true);
             tmp_img2_warped = warpImage(im2double(tmp_img2),warp.vx,warp.vy);
             tmp_img2_warped = tmp_img2_warped .* 255.0;
             tmp_mask2_warped = warpImage(im2double(tmp_mask2),warp.vx,warp.vy);

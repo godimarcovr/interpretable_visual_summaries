@@ -1,13 +1,13 @@
-function [match, weight, confidence, warp] = compute_flow_fn(img1_path, img2_path, num_op, proposals, doWarp)
+function [match, weight, confidence, warp] = compute_flow_fn(img1_path, img2_path,featA,featB, num_op, proposals, doWarp)
 % demo code for computing dense flow field
 % using ProposalFlow (LOM+SS)
 % show object proposal matching
 bShowMatch = false;
-
+set_conf;
 % % show dense flow field
 % bShowFlow = true;
 
-set_conf;
+%set_conf;
 
 % num_op=500; %number of object proposals
 
@@ -16,15 +16,7 @@ set_conf;
 % imgB = imread(fullfile(conf.datasetDir,'Cars_014b.png'));
 imgA = imread(img1_path);
 imgB = imread(img2_path);
-% imgB = imgB(:,end:-1:1, :);
 
-ishog = true;
-
-% ===============================================================
-% extracting object proposals using SelectiveSearch
-% ===============================================================
-% fprintf(' + Extrating object proposals ');
-tic;
 if num_op == 0
     proposalA = [1 1 size(imgA, 2) size(imgA, 1) ];
     proposalB = [1 1 size(imgB, 2) size(imgB, 1) ];
@@ -45,24 +37,7 @@ end
 opA.coords=proposalA;
 opB.coords=proposalB;
 clear proposalA; clear proposalB;
-% fprintf('took %.2f secs.\n\n',toc);
 
-% ===============================================================
-% extrating feature descriptors
-% ===============================================================
-% fprintf(' + Extrating featrues ');
-tic;
-if ishog
-    featA =  extract_segfeat_hog(imgA,opA);
-    featB =  extract_segfeat_hog(imgB,opB); 
-    opt.feature = 'HOG';
-else
-    featA =  extract_segfeat_cnn(imgA,opA, 'Conv4');
-    featB =  extract_segfeat_cnn(imgB,opB, 'Conv4');
-    opt.feature = 'CNN';
-end
-
-% fprintf('took %.2f secs.\n\n',toc);
 if num_op == 0
     viewA = load_view(imgA,opA,featA, 'cand', [1]);
     viewB = load_view(imgB,opB,featB, 'cand', [1]);
@@ -70,16 +45,13 @@ else
     viewA = load_view(imgA,opA,featA);
     viewB = load_view(imgB,opB,featB);
 end
-clear featA; clear featB;
-clear opA; clear opB;
+% imgB = imgB(:,end:-1:1, :);
 
-% ===============================================================
-% matching object proposals
-% ===============================================================
-% fprintf(' + Matching object proposals\n');
-% fprintf('   - # of features: A %d => # B %d\n', size(viewA.desc,2), size(viewB.desc,2) );
+ishog = true;
+
 
 % options for matching
+opt.feature = 'HOG';
 opt.bDeleteByAspect = true;
 opt.bDensityAware = false;
 opt.bSimVote = true;
@@ -92,6 +64,18 @@ opt.bVoteExp = true;
 % LOM: local offset matching
 tic;
 confidence = feval( @LOM, viewA, viewB, opt );
+
+% %%mod
+% if flip
+%     res=reshape(viewB.desc,[8,8,31,num_op]);
+%     res=res(:,8:-1:1,vl_hog('permutation'),:);
+%     res=res(:);
+%     viewBi=viewB;
+%     viewBi.desc=reshape(res,[8*8*31,num_op]);
+%     confidence2 = feval( @LOM, viewA, viewBi, opt );
+%     confidence=max(confidence,confidence2);
+% end
+%%
 % fprintf('   - %s took %.2f secs.\n\n', func2str(@LOM), toc);
 t1=toc;
 
